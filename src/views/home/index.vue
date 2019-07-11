@@ -6,7 +6,11 @@
 
     <!-- 频道标签 -->
     <van-tabs class="channel-tabs" v-model="activeChannelIndex">
-      <van-tab title="标签 1">
+      <van-tab
+      v-for="channelItem in channels"
+      :key="channelItem.id"
+      :title="channelItem.name"
+      >
         <!--
           下拉刷新组件
           isLoading 控制下拉的 loading 状态
@@ -19,8 +23,8 @@
             onLoad 事件会在滚动到底部区域的时候自动调用，每次 onLoad 它会自动让 loading 为 true
           -->
           <van-list
-            v-model="loading"
-            :finished="finished"
+            v-model="channelItem.upPullLoading"
+            :finished="channelItem.upPullFinished"
             finished-text="没有更多了"
             @load="onLoad"
           >
@@ -28,20 +32,13 @@
               列表中的内容
             -->
             <van-cell
-              v-for="item in list"
-              :key="item"
-              :title="item"
+              v-for="articleItem in channelItem.articles"
+              :key="articleItem.art_id"
+              :title="articleItem.title"
             />
           </van-list>
         </van-pull-refresh>
       </van-tab>
-      <van-tab title="标签 2">内容 2</van-tab>
-      <van-tab title="标签 3">内容 3</van-tab>
-      <van-tab title="标签 4">内容 4</van-tab>
-      <van-tab title="标签 5">内容 5</van-tab>
-      <van-tab title="标签 6">内容 6</van-tab>
-      <van-tab title="标签 7">内容 7</van-tab>
-      <van-tab title="标签 8">内容 8</van-tab>
     </van-tabs>
     <!-- /频道标签 -->
 
@@ -57,6 +54,8 @@
 </template>
 
 <script>
+import { getUserChannels } from '@/api/channel'
+import { getArticles } from '@/api/article'
 export default {
   name: 'HomeIndex',
   data () {
@@ -65,30 +64,91 @@ export default {
       list: [],
       loading: false,
       finished: false,
-      pullRefreshLoading: false
+      pullRefreshLoading: false,
+      channels: [] // 存储频道列表
     }
   },
+  // 添加计算属性
+  computed: {
+    // 当前激活的频道
+    // activeChannelIndex 激活频道的索引
+    activeChannel () {
+      return this.channels[this.activeChannelIndex]
+    }
+  },
+  created () {
+    this.loadingChannels()
+  },
   methods: {
-    onLoad () {
-      console.log('onLoad')
-      // 异步更新数据
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          this.list.push(this.list.length + 1)
+    async loadingChannels () {
+      const { user } = this.$store.state
+      let channels = []
+      if (user) {
+      // 已登录
+        const data = await getUserChannels()
+        // console.log(data)
+        channels = data.channels
+      } else {
+        // 没有登录
+        // 如果有本地存储数据则使用本地存储中的频道列表
+        const localChannels = JSON.parse(window.localStorage.getItem('channels')) // 拿到本地存储的数据
+        if (localChannels) {
+          channels = localChannels
+        } else {
+          // 如果没有本地存储列表数据则会请求获取默认推荐的频道列表
+          const data = await getUserChannels()
+          // console.log(data)
+          channels = data.channels
         }
-        // 加载状态结束
-        this.loading = false
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
-          // 所有数据加载完毕，设置 finished 为 true
-          this.finished = true
-        }
-      }, 1000)
+      }
+      // 修改 channels 将这个数据结构修改为满足我们使用的需求
+      channels.forEach(item => {
+        item.articles = [] // 用来存储当前文章的列表
+        item.timestamp = Date.now() // 存储下一页的时间戳
+        item.downPullloading = false // 控制当前频道的下拉刷新 loading 状态
+        item.upPullLoading = false // 控制当前频道的上拉加载更多的 loading 状态
+        item.upPullFinished = false // 控制当前频道数据是否加载完毕
+      })
+      this.channels = channels
     },
+    // 上拉加载更多， push 数据
+    async onLoad () {
+      let data = []
+      data = await this.loadArticles()
+
+      // pre_timestamp 下一页的（时间戳）页码  （上次时间点推荐的数据）
+      // results 就是文章列表
+      // 解决初始化的时候没有最新数据推荐，（没有最新数据推荐，就加载上一次推荐的数据）
+      if (data.pre_timestamp && !data.results.length) {
+        this.activeChannel.timestamp = data.pre_timestamp
+
+        // 加载下一页数据
+        data = await this.loadArticles()
+      }
+      // 下一页数据加载好以后，将pre_timestamp 更新到当前频道中 用于加载下下页数据
+      this.activeChannel.timestamp = data.pre_timestamp
+
+      // 将文章数据更新到文章中
+      this.activeChannel.articles.push(...data.results)
+
+      // 数据加载完毕  取消上拉loading 状态
+      this.activeChannel.upPullLoading = false
+    },
+    // 下拉刷新  如果有新数据 就重置列表数据
     onRefresh () {
       setTimeout(() => {
         this.pullRefreshLoading = false
       }, 3000)
+    },
+    async loadArticles () {
+      const { id: channelId, timestamp } = this.activeChannel
+      // console.log(this.activeChannel)
+      const data = await getArticles({
+        channelId, // 当前激活的频道id
+        timestamp, // 当前频道下一页的时间戳
+        withTop: 1 // 是否包含了置顶数据
+      })
+      return data
     }
   }
 }

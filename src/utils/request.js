@@ -1,5 +1,6 @@
 // 封装axios api
 import axios from 'axios'
+import store from '@/store'
 
 // axios.created 创建一个 axios 实例，改实例和 axios 一样的功能
 // 这样做可以拥有多个请求函数，而他们的配置不一样
@@ -19,6 +20,11 @@ const request = axios.create({
 // Add a request interceptor
 request.interceptors.request.use(function (config) {
   // Do something before request is sent
+  const { user } = store.state
+  // 如果已登录，则为请求接口统一添加用户 token
+  if (user) {
+    config.headers.Authorization = `Bearer ${user.token}`
+  }
   return config
 }, function (error) {
   // Do something with request error

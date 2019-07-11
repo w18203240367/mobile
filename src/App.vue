@@ -1,6 +1,6 @@
 <template>
   <div id='app'>
-    <p>component</p>
+      <router-view></router-view>
   </div>
 </template>
 
@@ -12,14 +12,11 @@ export default {
   },
   data () {
     return {
-
     }
   },
   created () {
-
   },
   methods: {
-
   }
 }
 </script>

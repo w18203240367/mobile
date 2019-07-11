@@ -34,7 +34,13 @@ Vue.use(Button)
   .use(CellGroup)
   .use(PullRefresh)
 Vue.config.productionTip = false
-
+Vue.prototype.$sleep = time => {
+  return new Promise((resolve, reject) => {
+    window.setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
 new Vue({
   router,
   store,

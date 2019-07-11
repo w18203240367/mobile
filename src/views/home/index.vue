@@ -113,9 +113,18 @@ export default {
     },
     // 上拉加载更多， push 数据
     async onLoad () {
+      await this.$sleep(800)
       let data = []
       data = await this.loadArticles()
-
+      // 如果没有pre_timestamp 并且数组是空的则意味着没有数据了
+      if (!data.pre_timestamp && !data.results.length) {
+        // 设置改频道数据加载完毕，组件会自动给出提示并且不在onloading
+        this.artiveChannel.upPullFinished = true
+        // 取消loading
+        this.artiveChannel.upPullLoading = false
+        // 代码不要继续执行
+        return
+      }
       // pre_timestamp 下一页的（时间戳）页码  （上次时间点推荐的数据）
       // results 就是文章列表
       // 解决初始化的时候没有最新数据推荐，（没有最新数据推荐，就加载上一次推荐的数据）

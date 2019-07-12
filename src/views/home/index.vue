@@ -81,6 +81,24 @@ export default {
       return this.channels[this.activeChannelIndex]
     }
   },
+  watch: {
+    // 监视容器中user的状态，只要 user 发生改变，那么就重新获取频道列表
+    // 凡是 this 点儿出来的东西 都可以被监视
+    async '$store.state.user' () {
+      // console.log('user 改变')
+      // 重新加载频道列表
+      await this.loadingChannels()
+
+      // 由于重新加载了频道数据文章内容也都被清空了
+      // 而且上拉加载更多的 onLoad 没有主动触发
+
+      // 我们这里可以手动触发 上拉加载更多的 onLoad
+      // 只需要将当前激活的频道的上拉onload 设置为 true 他会自动触发自己的 onLoad 函数
+      // 注意这里有别的东西影响了 没有自动 调用 onLoad
+      this.activeChannel.upPullLoading = true
+      this.onLoad()
+    }
+  },
   created () {
     this.loadingChannels()
   },
@@ -151,6 +169,7 @@ export default {
     // 下拉刷新  如果有新数据 就重置列表数据
     async onRefresh () {
       const { activeChannel } = this
+
       // 备份加载下一页数据的时间戳
       // const timestamp = this.activeChannel.timestamp
 

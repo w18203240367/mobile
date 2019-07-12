@@ -8,6 +8,10 @@ import store from './store'
 import 'amfe-flexible'
 // 引入转换rem包 自动把px（像素） 转换 rem单位
 import 'postcss-pxtorem'
+// 引入表单验证包
+import VeeValidate, { Validator } from 'vee-validate'
+// 引入表单验证汉化包
+import zhCN from 'vee-validate/dist/locale/zh_CN'
 // 引入vant工具
 import {
   Button,
@@ -34,6 +38,12 @@ Vue.use(Button)
   .use(CellGroup)
   .use(PullRefresh)
 Vue.config.productionTip = false
+
+Vue.use(VeeValidate, {
+  event: '' // 禁用默认事件验证
+})
+// 调用语言包
+Validator.localize('zh_CnN', zhCN)
 Vue.prototype.$sleep = time => {
   return new Promise((resolve, reject) => {
     window.setTimeout(() => {

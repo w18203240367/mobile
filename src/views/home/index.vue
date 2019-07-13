@@ -6,6 +6,10 @@
 
     <!-- 频道标签 -->
     <van-tabs class="channel-tabs" v-model="activeChannelIndex">
+      <!-- 这种元素不受作用域影响 -->
+      <div slot="nav-right" class="wap-nav" @click="isChannelShow = true">
+        <van-icon name="wap-nav" />
+      </div>
       <van-tab
       v-for="channelItem in channels"
       :key="channelItem.id"
@@ -55,14 +59,29 @@
       <van-tabbar-item icon="setting-o" to="my">我的</van-tabbar-item>
     </van-tabbar>
     <!-- /底部导航 -->
+    <!-- 频道组件 -->
+    <!--
+      :value='isChannelShow'
+      @input='isChannelShow = input =$event'
+     -->
+      <home-channel
+      v-model="isChannelShow"
+      :user-channels='channels'
+      :active-index='activeChannelIndex'
+      ></home-channel>
+    <!-- /频道组件 -->
   </div>
 </template>
 
 <script>
 import { getUserChannels } from '@/api/channel'
 import { getArticles } from '@/api/article'
+import HomeChannel from './components/channel'
 export default {
   name: 'HomeIndex',
+  components: {
+    HomeChannel
+  },
   data () {
     return {
       activeChannelIndex: 0,
@@ -70,7 +89,8 @@ export default {
       loading: false,
       finished: false,
       pullRefreshLoading: false,
-      channels: [] // 存储频道列表
+      channels: [], // 存储频道列表
+      isChannelShow: false // 控制频道面板的显示状态
     }
   },
   // 添加计算属性
@@ -221,5 +241,13 @@ export default {
 }
 .channel-tabs /deep/ .van-tabs__content {
   margin-top: 92px;
+}
+.channel-tabs .wap-nav {
+  position: sticky;
+  display: flex;
+  right: 0;
+  align-items: center;
+  background-color: #fff;
+  opacity: .7;
 }
 </style>

@@ -24,7 +24,11 @@ import {
   List,
   Cell,
   CellGroup,
-  PullRefresh
+  PullRefresh,
+  Popup,
+  Icon,
+  Grid,
+  GridItem
 } from 'vant'
 Vue.use(Button)
   .use(NavBar)
@@ -37,6 +41,10 @@ Vue.use(Button)
   .use(Cell)
   .use(CellGroup)
   .use(PullRefresh)
+  .use(Popup)
+  .use(Icon)
+  .use(Grid)
+  .use(GridItem)
 Vue.config.productionTip = false
 
 Vue.use(VeeValidate, {

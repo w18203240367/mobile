@@ -1,10 +1,14 @@
 <template>
-  <div class="login">
-    <van-nav-bar class="logtin-title" title="登录" />
+  <div class="login-wrap">
+    <!-- 头部 -->
+    <van-nav-bar title="登录"/>
+
+    <!-- 表单 -->
     <form>
       <van-cell-group>
         <van-field
           v-model="user.mobile"
+          required
           clearable
           label="手机号"
           placeholder="请输入手机号"
@@ -12,6 +16,7 @@
           name="mobile"
           :error-message="errors.first('mobile')"
         />
+
         <van-field
           v-model="user.code"
           type="password"
@@ -22,13 +27,14 @@
           :error-message="errors.first('code')"
         />
       </van-cell-group>
-      <div class="login-btn">
+
+      <div class="login-btn-box">
         <van-button
-        type="info"
-        class="loginBtn"
-        @click.prevent="hangdeLogin"
-        :loading='LoginLoading'
-        loading-text="登录中..."
+          class="login-btn"
+          type="info"
+          :loading="loginLoading"
+          loading-text="登录中..."
+          @click.prevent="handleLogin"
         >登录</van-button>
       </div>
     </form>
@@ -38,17 +44,14 @@
 <script>
 import { login } from '@/api/user'
 export default {
-  name: 'Login',
-  props: {
-
-  },
+  name: 'LoginIndex',
   data () {
     return {
-      user: {
-        mobile: '18203240367',
+      user: { // 提交登录的表单数据
+        mobile: '18801185985',
         code: '246810'
       },
-      LoginLoading: false,
+      loginLoading: false, // 控制登录按钮的 loading 状态
       myErrors: {
         mobile: '',
         code: ''
@@ -59,27 +62,29 @@ export default {
     this.configFormErrorMessages()
   },
   methods: {
-    async hangdeLogin () {
+    async handleLogin () {
       try {
+        // 调用 JavaScript 触发验证
         const valid = await this.$validator.validate()
-        //
+        // 如果校验失败，则停止后续代码执行
         if (!valid) {
           return
         }
         // 表单验证通过，发送请求，loading 加载
-        this.LoginLoading = true
+        this.loginLoading = true
         const data = await login(this.user)
         this.$store.commit('setUser', data)
-
-        // 跳转到首页
+        /**
+         * 这里先简单粗暴的跳转到首页
+         * 真实的业务要处理成跳转到之前过来的的页面
+         */
         this.$router.push({
           name: 'home'
         })
       } catch (err) {
-        console.log(err)
         this.$toast.fail('登录失败')
       }
-      this.LoginLoading = false
+      this.loginLoading = false
     },
     configFormErrorMessages () {
       const dict = {
@@ -88,25 +93,25 @@ export default {
             required: '手机号不能为空'
           },
           code: {
-            required: '验证码不能为空'
+            required: '密码不能为空'
           }
         }
       }
+      // 如果需要错误消息提示全局生效
+      // Validator.localize('en', dict);
+      // 组件中这也注册生效
+      // or use the instance method
       this.$validator.localize('zh_CN', dict)
     }
   }
 }
 </script>
 
-<style scoped lang="less">
-.logtin-title {
-  background-color: #3296fa;
-}
-.login-btn {
-  padding: 10px;
-  .loginBtn {
+<style lang="less" scoped>
+.login-btn-box {
+  padding: 20px;
+  .login-btn {
     width: 100%;
-    border-radius: 10px;
   }
 }
 </style>

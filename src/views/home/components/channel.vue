@@ -25,7 +25,7 @@
             plain
             size="mini"
             @click="isEdit = !isEdit"
-          >{{ isEdit ? '完成' : '编辑' }}</van-button>
+          >{{ isEdit ? '完成' : '编辑'}}</van-button>
         </div>
       </div>
       <van-grid class="channel-content" :gutter="10" clickable>
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channel'
+import { getAllChannels, deleteUserChannel, updateUserChannel } from '@/api/channel'
 export default {
   name: 'HomeChannel',
   props: {
@@ -124,7 +124,7 @@ export default {
         console.log(err)
       }
     },
-    handleAddChannel (item) {
+    async handleAddChannel (item) {
       // userChannels 是 props 数据
       // props 数据有个原则：单向数据流
       //    数据只受父组件影响，但是反之不会
@@ -140,6 +140,10 @@ export default {
       const { user } = this.$store.state
       // 如果登录已登录，则请求添加用户频道
       if (user) {
+        await updateUserChannel([{
+          id: item.id,
+          seq: channels.length - 1 // 序号
+        }])
       } else {
         // 如果没有登录，则添加到本地存储
         // 没有就创建，有的直接覆盖
@@ -147,7 +151,8 @@ export default {
         window.localStorage.setItem('channels', JSON.stringify(channels))
       }
     },
-    handleUserChannelClick (item, index) {
+    // 非编辑状态，则是切换 tab 显示 ，编辑状态，则是删除操作
+    async handleUserChannelClick (item, index) {
       // 如果是非编辑状态，则是切换 tab 显示
       if (!this.isEdit) {
         this.$emit('update:active-index', index)
@@ -161,6 +166,7 @@ export default {
       const { user } = this.$store.state
       // 如果用户登录登录，则请求删除
       if (user) {
+        await deleteUserChannel(item.id)
         return
       }
       // 如果用户没有登录， 则将数据保存到本地存储

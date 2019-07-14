@@ -64,6 +64,7 @@
                 过滤器函数返回值会输出这里
               -->
               <span>{{ item.pubdate | relativeTime }}</span>
+              <van-icon class="close" name="close"/>
             </template>
             </van-cell>
           </van-list>
@@ -103,6 +104,24 @@
       :active-index.sync="activeChannelIndex"
     />
     <!-- /频道组件 -->
+
+    <!-- 更多操作弹框 -->
+      <van-dialog
+        v-model="isMoreActionShow"
+        :show-confirm-button="false"
+      >
+      <van-cell-group v-if="!toggleRubbish">
+        <van-cell title="不感兴趣" />
+        <van-cell title="返回垃圾内容" is-link @click="toggleRubbish = true" />
+      </van-cell-group>
+      <van-cell-group v-else>
+        <van-cell icon="arrow-left" @click="toggleRubbish = false" />
+        <van-cell title="标题夸张" />
+        <van-cell title="低俗色情" />
+      </van-cell-group>
+      </van-dialog>
+    <!-- /更多操作弹框 -->
+
   </div>
 </template>
 
@@ -123,7 +142,9 @@ export default {
       loading: false,
       finished: false,
       pullRefreshLoading: false,
-      isChannelShow: false // 控制频道面板的显示状态
+      isChannelShow: false, // 控制频道面板的显示状态
+      isMoreActionShow: true, // 控制更多操作弹框面板
+      toggleRubbish: false // 控制反馈垃圾弹框内容的显示
     }
   },
   // // 过滤器 管道服务
@@ -304,5 +325,9 @@ export default {
   align-items: center;
   background: #fff;
   opacity: .7;
+}
+.channel-tabs .close {
+  float: right;
+  font-size: 30px;
 }
 </style>

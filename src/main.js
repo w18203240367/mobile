@@ -12,6 +12,8 @@ import 'postcss-pxtorem'
 import VeeValidate, { Validator } from 'vee-validate'
 // 引入表单验证汉化包
 import zhCN from 'vee-validate/dist/locale/zh_CN'
+// 引入时间格式包
+import relativeTime from './filters/relative-time'
 // 引入vant工具
 import {
   Button,
@@ -28,7 +30,9 @@ import {
   Popup,
   Icon,
   Grid,
-  GridItem
+  GridItem,
+  Image,
+  Lazyload
 } from 'vant'
 Vue.use(Button)
   .use(NavBar)
@@ -45,8 +49,12 @@ Vue.use(Button)
   .use(Icon)
   .use(Grid)
   .use(GridItem)
-Vue.config.productionTip = false
+  .use(Image)
+  .use(Lazyload)
 
+Vue.config.productionTip = false
+// 注册一个全局过滤器：处理相对时间
+Vue.filter('relativeTime', relativeTime)
 Vue.use(VeeValidate, {
   event: '' // 禁用默认事件验证
 })

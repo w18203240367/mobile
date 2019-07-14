@@ -44,7 +44,28 @@
               v-for="item in channelItem.articles"
               :key="item.art_id"
               :title="item.title"
-            />
+            >
+            <template slot="label">
+              <template v-if="item.cover.type">
+                <van-grid :border="false" :column-num="3">
+                  <van-grid-item v-for="(img, index) in item.cover.images" :key="index">
+                    <van-image :src="img" lazy-load />
+                  </van-grid-item>
+                </van-grid>
+              </template>
+              <span>{{ item.aut_name }}</span>
+              &nbsp;
+              <span>{{ item.comm_count }}</span>
+              &nbsp;
+              <!-- <span>{{ relativeTime(item.pubdate) }}</span> -->
+              <!--
+                relativeTime 就是在调用过滤器函数
+                过滤器函数接收的参数就是 | 前面的 item.pubdate
+                过滤器函数返回值会输出这里
+              -->
+              <span>{{ item.pubdate | relativeTime }}</span>
+            </template>
+            </van-cell>
           </van-list>
         </van-pull-refresh>
       </van-tab>
@@ -69,6 +90,13 @@
       简单来说，给 props 数组加 .sync 其实就是 v-model 的作用
       只不过一个组件只能有一个 v-model
      -->
+     <!--
+       过滤器是在模板中调用函数的另一种方式
+       一般用于格式化输出内容，其中不会有太多业务逻辑，一般都是字符串的格式化处理
+       过滤器可以定义到：
+       全局：Vue.filter('过滤器名称') 可以在任何地方使用
+       局部:filters 选项，只能在组件内部使用
+      -->
     <home-channel
       v-model="isChannelShow"
       :user-channels.sync="channels"
@@ -98,6 +126,12 @@ export default {
       isChannelShow: false // 控制频道面板的显示状态
     }
   },
+  // // 过滤器 管道服务
+  // filters: {
+  //   relativeTime (val) {
+  //     return dayjs().from(dayjs(val))
+  //   }
+  // },
   computed: {
     activeChannel () {
       return this.channels[this.activeChannelIndex]

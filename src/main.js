@@ -34,7 +34,8 @@ import {
   Image,
   Lazyload,
   Dialog,
-  Toast
+  Toast,
+  Search
 } from 'vant'
 Vue.use(Button)
   .use(NavBar)
@@ -55,6 +56,7 @@ Vue.use(Button)
   .use(Lazyload)
   .use(Dialog)
   .use(Toast)
+  .use(Search)
 
 Vue.config.productionTip = false
 // 注册一个全局过滤器：处理相对时间

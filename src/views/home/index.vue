@@ -111,6 +111,8 @@
       <van-dialog
         v-model="isMoreActionShow"
         :show-confirm-button="false"
+        closeOnClickOverlay
+        :before-close='handleMoreActionClose'
       >
       <van-cell-group v-if="!toggleRubbish">
         <van-cell title="不感兴趣" @click="handleDislike" />
@@ -119,8 +121,12 @@
       </van-cell-group>
       <van-cell-group v-else>
         <van-cell icon="arrow-left" @click="toggleRubbish = false" />
-        <van-cell title="标题夸张" />
-        <van-cell title="低俗色情" />
+        <van-cell
+        v-for="item in repotTypes"
+        :key='item.value'
+        :title="item.title"
+        @click="handleReportArticle(item.value)"
+        />
       </van-cell-group>
       </van-dialog>
     <!-- /更多操作弹框 -->
@@ -130,7 +136,7 @@
 
 <script>
 import { getUserChannels } from '@/api/channel'
-import { getArticles, dislikesArticles } from '@/api/article'
+import { getArticles, dislikesArticles, complaintArticle } from '@/api/article'
 import { addBlacklist } from '@/api/user'
 import HomeChannel from './components/channel'
 export default {
@@ -149,7 +155,18 @@ export default {
       isChannelShow: false, // 控制频道面板的显示状态
       isMoreActionShow: false, // 控制更多操作弹框面板
       toggleRubbish: false, // 控制反馈垃圾弹框内容的显示
-      currentArticle: null // 存储当前操作更多的文章
+      currentArticle: null, // 存储当前操作更多的文章
+      repotTypes: [
+        { value: 1, title: '标题夸张' },
+        { value: 2, title: '低俗色情' },
+        { value: 3, title: '错别字多' },
+        { value: 4, title: '旧闻重复' },
+        { value: 5, title: '广告软文' },
+        { value: 6, title: '内容不实' },
+        { value: 7, title: '涉嫌违法犯罪' },
+        { value: 8, title: '侵权' },
+        { value: 0, title: '其他问题' }
+      ]
     }
   },
   // // 过滤器 管道服务
@@ -339,6 +356,32 @@ export default {
       this.isMoreActionShow = false
       this.handleDislike()
       this.$toast('操作成功')
+    },
+    async handleReportArticle (type) {
+      try {
+        await complaintArticle({
+          articleId: this.currentArticle.art_id.toString(),
+          type,
+          remark: ''
+        })
+        this.isMoreActionShow = false
+        this.$toast('操作成功')
+      } catch (err) {
+        if (err.response.status === 409) {
+          this.$toast('已被举报')
+        }
+        console.log(err)
+      }
+    },
+    //  该函数还在关闭对话框的时候被调用，我们可以在这里加入一些关闭之前的逻辑
+    // 如果设置了此函数 那么最后必须手动调用 done  才会关闭对话框
+    handleMoreActionClose (action, done) {
+      // 将里面的面板切换为初始状态
+      window.setTimeout(() => {
+        this.toggleRubbish = false
+      }, 500)
+      // 瞬间关闭
+      done()
     }
   }
 }

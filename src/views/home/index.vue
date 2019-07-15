@@ -39,10 +39,11 @@
           >
             <!--
               列表中的内容
+              对于模板中的错误，推荐的调试方法啊就是 ： 排除测试法
             -->
             <van-cell
               v-for="item in channelItem.articles"
-              :key="item.art_id"
+              :key="item.art_id.toString()"
               :title="item.title"
             >
             <template slot="label">
@@ -64,7 +65,8 @@
                 过滤器函数返回值会输出这里
               -->
               <span>{{ item.pubdate | relativeTime }}</span>
-              <van-icon class="close" name="close"/>
+              <!--  这是更多操作的点击按钮 -->
+              <van-icon class="close" name="close" @click="handleShowMoreAction(item)"/>
             </template>
             </van-cell>
           </van-list>
@@ -111,8 +113,9 @@
         :show-confirm-button="false"
       >
       <van-cell-group v-if="!toggleRubbish">
-        <van-cell title="不感兴趣" />
+        <van-cell title="不感兴趣" @click="handleDislike" />
         <van-cell title="返回垃圾内容" is-link @click="toggleRubbish = true" />
+        <van-cell title="拉黑作者" @click="handleAddBlacklist" />
       </van-cell-group>
       <van-cell-group v-else>
         <van-cell icon="arrow-left" @click="toggleRubbish = false" />
@@ -127,7 +130,8 @@
 
 <script>
 import { getUserChannels } from '@/api/channel'
-import { getArticles } from '@/api/article'
+import { getArticles, dislikesArticles } from '@/api/article'
+import { addBlacklist } from '@/api/user'
 import HomeChannel from './components/channel'
 export default {
   name: 'HomeIndex',
@@ -143,8 +147,9 @@ export default {
       finished: false,
       pullRefreshLoading: false,
       isChannelShow: false, // 控制频道面板的显示状态
-      isMoreActionShow: true, // 控制更多操作弹框面板
-      toggleRubbish: false // 控制反馈垃圾弹框内容的显示
+      isMoreActionShow: false, // 控制更多操作弹框面板
+      toggleRubbish: false, // 控制反馈垃圾弹框内容的显示
+      currentArticle: null // 存储当前操作更多的文章
     }
   },
   // // 过滤器 管道服务
@@ -299,6 +304,41 @@ export default {
       } catch (err) {
         console.log(err)
       }
+    },
+    // 处理显示更多操作弹框面板
+    handleShowMoreAction (item) {
+      // 将点击操作更多的文章存储起来 用于后续使用
+      this.currentArticle = item
+
+      // 显示弹框
+      this.isMoreActionShow = true
+    },
+    async handleDislike () {
+      // 拿到操作文章的id
+      const articleId = this.currentArticle.art_id.toString()
+      // console.log(articleId)
+      // 请求完成操作
+      await dislikesArticles(articleId)
+
+      // 隐藏对话框
+      this.isMoreActionShow = false
+      // 当前频道文章列表
+      const articles = this.activeChannel.articles
+
+      // 找到不喜欢的文章位于文章中的索引
+      // finished 是一个数组方法 他会遍历数组 找到满足 item.art_id === articleId 的数据id
+      const dilIndex = articles.findIndex(item => item.art_id.toString() === articleId)
+      // console.log(dilIndex)
+      // 本条数据移除
+      articles.splice(dilIndex, 1)
+      this.$toast('操作成功')
+    },
+    // 拉黑作者
+    async handleAddBlacklist () {
+      await addBlacklist(this.currentArticle.aut_id)
+      this.isMoreActionShow = false
+      this.handleDislike()
+      this.$toast('操作成功')
     }
   }
 }

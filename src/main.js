@@ -33,7 +33,8 @@ import {
   GridItem,
   Image,
   Lazyload,
-  Dialog
+  Dialog,
+  Toast
 } from 'vant'
 Vue.use(Button)
   .use(NavBar)
@@ -53,6 +54,7 @@ Vue.use(Button)
   .use(Image)
   .use(Lazyload)
   .use(Dialog)
+  .use(Toast)
 
 Vue.config.productionTip = false
 // 注册一个全局过滤器：处理相对时间

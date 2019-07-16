@@ -12,3 +12,20 @@ export const getSuggestion = (q) => {
     }
   })
 }
+
+// 获取搜索结果
+export const getSearch = ({
+  page = 1, // 页码
+  perPage = 10, // 每页大小
+  q // 搜索关键词
+}) => {
+  return request({
+    method: 'GET',
+    url: '/app/v1_0/search',
+    params: {
+      page,
+      per_page: perPage,
+      q
+    }
+  })
+}

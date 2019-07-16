@@ -6,23 +6,23 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
       name: 'home',
+      path: '/',
       component: () => import('@/views/home')
     },
     {
-      path: '/login',
       name: 'login',
+      path: '/login',
       component: () => import('@/views/login')
     },
     {
-      path: '/search',
       name: 'search',
+      path: '/search',
       component: () => import('@/views/search')
     },
     {
-      path: '/search-result',
-      name: 'search:q',
+      name: 'search-result',
+      path: '/search/:q',
       component: () => import('@/views/search-result')
     }
   ]

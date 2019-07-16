@@ -52,6 +52,16 @@ export default {
       suggestion: []
     }
   },
+  // 组件缓存的情况下页面显示出来调用
+  activated () {
+    this.onLoad()
+    this.loading = true
+  },
+  // 组件缓存的情况下页面隐藏调用
+  deactivated () {
+    this.articles = []
+    this.page = 1
+  },
   watch: {
     // debounce 接收两个参数
     // 第一个： 执行你的业务逻辑的参数函数

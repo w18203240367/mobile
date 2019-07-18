@@ -14,6 +14,8 @@ import VeeValidate, { Validator } from 'vee-validate'
 import zhCN from 'vee-validate/dist/locale/zh_CN'
 // 引入时间格式包
 import relativeTime from './filters/relative-time'
+// 登录状态
+import checkLogin from '@/utils/check-login'
 // 引入vant工具
 import {
   Button,
@@ -73,6 +75,8 @@ Vue.prototype.$sleep = time => {
     }, time)
   })
 }
+// 将检查登录状态挂在到 Vue 原型 对象上，这样的话任何组件都可以使用了
+Vue.prototype.$checkLogin = checkLogin
 new Vue({
   router,
   store,

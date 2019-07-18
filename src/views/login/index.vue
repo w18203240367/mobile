@@ -78,9 +78,15 @@ export default {
          * 这里先简单粗暴的跳转到首页
          * 真实的业务要处理成跳转到之前过来的的页面
          */
-        this.$router.push({
-          name: 'home'
-        })
+        // this.$router.push({
+        //   name: 'home'
+        // })
+        // 1.简单粗暴的方式返回  back() 如果是手机 App 完全没问题
+        // 2.使用 url 记住来源路径
+        // this.$router.back()
+
+        const redirect = this.$route.query.redirect || '/'
+        this.$router.push(redirect)
       } catch (err) {
         this.$toast.fail('登录失败')
       }

@@ -21,7 +21,15 @@ export default () => {
   }).then(() => {
     // 用户点击确认跳转到登录页
     router.push({
-      name: 'login'
+      name: 'login',
+      query: {
+        //  写法一:
+        // 传递查询字符串
+        redirect: router.currentRoute.fullPath
+
+      // 写法二：
+      // router.push('/login?redirect=/article/141349&a=1')
+      }
     })
     // 登录成功，返回之前的页面
   }).catch(() => {

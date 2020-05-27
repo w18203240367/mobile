@@ -1,0 +1,52 @@
+// @import './base.scss';
+@import './variable.scss';
+// 头部
+.top {
+  display: flex;
+  height:50px;
+  line-height: 50px;
+  background-color: rgba(255, 217, 0, 0.733);
+  // text-align: $tc;
+  .top_left,.title,.top_right {
+    flex: 1;
+  }
+  .top_left {
+    padding: 5px;
+    .top_left_box {
+      width:80px;
+      height: 40px;
+      background: #FAEBD7;
+    }
+  }
+  .title {
+    text-align: $tc;
+    font-size: 20px;
+  }
+  .top_right_box {
+    font-size: 28px;
+    padding-right:$pr;
+    padding-top: 2px;
+    text-align: $tr;
+  }
+}
+// 列表分类
+.type {
+  .type_icon {
+    font-size: 20px;
+    width: 40px;
+    height: 36px;
+    margin: 0 auto;
+    text-align: $tc;
+    border-radius: 8px;
+    line-height: 36px;
+    color:$w;
+  }
+  .type_text {
+    font-size: 16px;
+    text-align: $tc;
+    padding-top: $pt;
+  }
+  .bgc {
+    background-color:$r;
+  }
+}
